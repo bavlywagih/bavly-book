@@ -12,6 +12,8 @@
     @else
         <link rel="stylesheet" href="{{ mix('css/navbar.css') }}">
     @endauth
+    {{-- <link href="{{ mix('css/app.css') }}" rel="stylesheet"> --}}
+
      @yield('styles') 
 </head>
 <body>

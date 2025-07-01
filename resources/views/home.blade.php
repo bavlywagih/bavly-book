@@ -3,6 +3,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="{{ mix('css/indexPage.css') }}">
+    <link rel="stylesheet" href="{{ mix('css/post.css') }}">
 @endsection
 
 @section('title', 'الرئيسية')
@@ -10,6 +11,38 @@
 @section('content')
 
 @auth
+
+<div class="fb-post-container">
+    {{-- نموذج إنشاء بوست --}}
+    <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="fb-post-form">
+        @csrf
+        <textarea name="content" rows="3" placeholder="What’s on your mind?" required></textarea>
+        <input type="file" name="images[]" multiple accept="image/*">
+        <button type="submit">Post</button>
+    </form>
+
+    {{-- عرض البوستات --}}
+    @foreach(auth()->user()->posts()->latest()->get() as $post)
+        <div class="fb-post">
+            <div class="fb-post-header">
+                <strong>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</strong>
+                <span class="timestamp">{{ $post->created_at->diffForHumans() }}</span>
+            </div>
+            <div class="fb-post-body">
+                <p>{{ $post->content }}</p>
+
+                @if($post->images && count($post->images))
+                    <div class="fb-post-images">
+                        @foreach($post->images as $image)
+                            <img src="{{ asset('storage/' . $image->path) }}" alt="Post Image">
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endforeach
+</div>
+
 
 
 

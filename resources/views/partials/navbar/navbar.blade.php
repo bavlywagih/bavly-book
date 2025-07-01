@@ -13,19 +13,21 @@
 @auth
 
   <header class="fb-header">
-    <div class="logo"><a href="" class="text-white text-decoration-none" >Bavlybook</a></div>
+    <div class="logo"><a href="{{ route('home') }}" class="text-white text-decoration-none" >Bavlybook</a></div>
 
     <div class="search-box">
       <input type="text" placeholder="Search Facebook">
     </div>
 
     <div class="icons">
-      <span title="Home">🏠</span>
-      <span title="Friends">👥</span>
-      <span title="Notifications">🔔</span>
-      <span title="Messages">💬</span>
+        <span title="Home"><a href="{{ route('home') }}">🏠</a></span>
+        <span title="Friends">👥</span>
+        <span title="Notifications">🔔</span>
+        <span title="Messages">💬</span>
+            <img src="{{ auth()->user()->currentProfilePhoto ? Storage::url(auth()->user()->currentProfilePhoto->path) : asset('image/default-user-photo.png') }}" id="profile-icon" alt="Profile Photo" style="width: 40px; height: 40px;object-fit: cover; border-radius: 3px; border: 3px solid white; background-position: center; cursor: pointer;">
 
-      <span title="Profile" id="profile-icon">👤</span>
+
+
 
       <div class="dropdown" id="profile-dropdown">
         <a href="{{ route('profile.show') }}">My Profile</a>

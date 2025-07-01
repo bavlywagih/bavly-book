@@ -25,26 +25,57 @@ public function images()
     return $this->hasMany(Image::class);
 }
 
+public function posts()
+{
+    return $this->hasMany(Post::class);
+}
+
+
 public function profilePhotos()
 {
     return $this->images()->where('type', 'profile')->orderByDesc('created_at');
 }
 
-public function coverPhotos()
+// public function coverPhotos()
+// {
+//     return $this->images()->where('type', 'cover')->orderByDesc('created_at');
+// }
+
+// public function currentCoverPhoto()
+// {
+//     return $this->images()->where('type', 'cover')->where('is_current', true)->first();
+// }
+
+// public function currentCoverPhoto()
+// {
+//     return $this->hasOne(Image::class)
+//                 ->where('type', 'cover')
+//                 ->where('is_current', true)
+//                 ->latest('id'); // optional لتحسين الدقة
+// }
+public function currentCoverPhoto()
 {
-    return $this->images()->where('type', 'cover')->orderByDesc('created_at');
+    return $this->hasOne(Image::class)->where('type', 'cover')->where('is_current', true);
 }
 
 public function currentProfilePhoto()
 {
-    return $this->profilePhotos()->first();
+    return $this->hasOne(Image::class)->where('type', 'profile')->where('is_current', true);
 }
 
-public function currentCoverPhoto()
-{
-    return $this->coverPhotos()->first();
-}
+// public function currentProfilePhoto()
+// {
+//     return $this->hasOne(Image::class)
+//                 ->where('type', 'profile')
+//                 ->where('is_current', true)
+//                 ->latest('id'); // optional لتحسين الدقة
+// }
 
+
+// public function currentProfilePhoto()
+// {
+//     return $this->images()->where('type', 'profile')->where('is_current', true)->first();
+// }
 
     protected $hidden = [
         'password',

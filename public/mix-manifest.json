@@ -1,9 +1,11 @@
 {
-    "/js/script.js": "/js/script.js?id=242d55d40b631bcc028fd1179408d575",
+    "/js/script.js": "/js/script.js?id=0b7fba6fc1cd16ad3149b5609fa1fc41",
     "/js/bootstrap.min.js": "/js/bootstrap.min.js?id=cd55fa0ac4416833e46228cccf1b0433",
-    "/css/indexPage.css": "/css/indexPage.css?id=c2db3819e506562fa7b43881eb1ff059",
     "/css/nav-auth.css": "/css/nav-auth.css?id=9cd72ba2432e63ceec2e4ae032b61e7a",
+    "/css/post.css": "/css/post.css?id=ba75dc9187fec5717a2fd5c71712529f",
     "/css/navbar.css": "/css/navbar.css?id=ce9ebe342455b5b17d1a7acfed16c82d",
     "/css/bootstrap.min.css": "/css/bootstrap.min.css?id=b782015f2f96329d8edb166ba5d2486c",
-    "/css/style.css": "/css/style.css?id=aaf27322d93d3f31bf0377c00c77dbd2"
+    "/css/style.css": "/css/style.css?id=aaf27322d93d3f31bf0377c00c77dbd2",
+    "/css/indexPage.css": "/css/indexPage.css?id=c2db3819e506562fa7b43881eb1ff059",
+    "/css/profile.css": "/css/profile.css?id=89497688a00cb3940ca77f940272e763"
 }

@@ -7,36 +7,31 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
-    public function upload(Request $request)
-    {
-        $validated = $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'type' => 'required|in:profile,cover',
-        ]);
+public function upload(Request $request)
+{
+    $request->validate([
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'type' => 'required|in:cover,profile',
+    ]);
 
-        try {
-            $user = auth()->user();
+    $user = auth()->user();
 
-            $folder = $validated['type'] === 'profile' ? 'profile_photos' : 'cover_photos';
-            $path = $request->file('image')->store($folder, 'public');
+    // احذف تفعيل جميع الصور السابقة من نفس النوع
+    $user->images()->where('type', $request->type)->update(['is_current' => false]);
 
-            $user->images()->create([
-                'path' => $path,
-                'type' => $validated['type'],
-            ]);
+    // خزّن الصورة
+    $path = $request->file('image')->store($request->type . '_photos', 'public');
 
-            return response()->json([
-                'success' => 'Image uploaded successfully',
-                'path' => Storage::url($path),
-                'type' => $validated['type']
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Something went wrong.',
-                'details' => $e->getMessage()
-            ], 500);
-        }
-    }
+    // أنشئ السطر الجديد مع is_current = 1
+    $user->images()->create([
+        'path' => $path,
+        'type' => $request->type,
+        'is_current' => true,
+    ]);
+
+    return response()->json(['success' => 'تم رفع الصورة بنجاح']);
+}
+
     
 public function setCurrent(Request $request)
 {
@@ -56,10 +51,16 @@ public function setCurrent(Request $request)
         return response()->json(['error' => 'الصورة غير موجودة'], 404);
     }
 
-    $image->update(['created_at' => now()]);
+    // اجعل جميع الصور السابقة غير حالية
+    $user->images()->where('type', $request->type)->update(['is_current' => false]);
+
+    // اجعل هذه الصورة هي الحالية
+    $image->is_current = true;
+    $image->save();
 
     return response()->json(['success' => 'تم تعيين الصورة كالحالية']);
 }
+
 
 
     
