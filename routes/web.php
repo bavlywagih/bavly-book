@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile/images/delete/{id}', [ProfileController::class, 'deleteImage']);
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/load-posts', [HomeController::class, 'loadPosts']);
 
 
 });

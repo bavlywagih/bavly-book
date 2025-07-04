@@ -35,6 +35,7 @@ public function upload(Request $request)
     
 public function setCurrent(Request $request)
 {
+
     $request->validate([
         'image_id' => 'required|exists:images,id',
         'type' => 'required|in:profile,cover',

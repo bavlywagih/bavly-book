@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('styles')
+    <link rel="stylesheet" href="{{ mix('css/post.css') }}">
     <link rel="stylesheet" href="{{ mix('css/profile.css') }}">
 @endsection
 
@@ -83,7 +84,25 @@
 
         <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom" id="profileTabsContent">
             <div class="tab-pane fade show active" id="posts" role="tabpanel">
-                <p>هنا ستعرض المنشورات.</p>
+                @foreach(auth()->user()->posts()->latest()->get() as $post)
+                    <div class="fb-post">
+                        <div class="fb-post-header">
+                            <strong>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</strong>
+                            <span class="timestamp">{{ $post->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="fb-post-body">
+                            <p>{{ $post->body }}</p>
+
+                            @if($post->images && count($post->images))
+                                <div class="fb-post-images">
+                                    @foreach($post->images as $image)
+                                        <img src="{{ asset('storage/' . $image->path) }}" alt="Post Image">
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="tab-pane fade" id="about" role="tabpanel">

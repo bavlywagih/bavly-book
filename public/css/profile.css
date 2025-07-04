@@ -1,1 +1,96 @@
-body{background-color:#e8eaee}.cover-photo-container{background-color:#ccc;background-position:50%;background-size:cover;height:350px;position:relative;width:100%}.cover-edit-btn{background:rgba(0,0,0,.5);border-radius:5px;color:#fff;cursor:pointer;display:none;padding:5px 10px;position:absolute;right:10px;top:10px}.cover-photo-container:hover .cover-edit-btn{display:block}.profile-photo-container{background-color:#fff;background-position:50%;background-size:cover;border:4px solid #fff;border-radius:3px;bottom:-80px;cursor:pointer;height:200px;left:43px;overflow:hidden;position:absolute;width:200px}.profile-edit-btn{background:rgba(0,0,0,.5);bottom:0;color:#fff;display:none;font-size:14px;left:0;padding:5px;position:absolute;text-align:center;width:100%}.profile-photo-container:hover .profile-edit-btn{display:block}.upload-form{margin-top:10px;padding:20px}input[type=file]{display:none}.modal-img{max-height:70vh;-o-object-fit:contain;object-fit:contain}.user-name{color:#fff;font-size:36px;font-weight:700;left:284px;position:absolute;top:276px;z-index:2}.tab-content{background-color:#f5f6f7;border:1px solid #ccc;border-top:none}#profileTabs{display:flex;justify-content:center}
+    body{
+        background-color: hsl(220deg 15% 92.16%);
+    }
+    .cover-photo-container {
+        position: relative;
+        width: 100%;
+        height: 350px;
+        background-color: #ccc;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .cover-edit-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none;
+    }
+
+    .cover-photo-container:hover .cover-edit-btn {
+        display: block;
+    }
+
+    .profile-photo-container {
+        position: absolute;
+        bottom: -80px;
+        left: 43px;
+        width: 200px;
+        height: 200px;
+        border: 4px solid white;
+        border-radius: 3px;
+        /* border-radius: 50%; */
+        background-size: cover;
+        background-position: center;
+        background-color: #fff;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .profile-edit-btn {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        text-align: center;
+        padding: 5px;
+        font-size: 14px;
+        display: none;
+        /* border-bottom-left-radius: 50%;
+        border-bottom-right-radius: 50%; */
+    }
+
+    .profile-photo-container:hover .profile-edit-btn {
+        display: block;
+    }
+
+    .upload-form {
+        margin-top: 10px;
+        padding: 20px;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .modal-img {
+        max-height: 70vh;
+        -o-object-fit: contain;
+           object-fit: contain;
+    }
+    .user-name{
+        position: absolute;
+        top: 276px;
+        left: 284px;
+        color: #fff;
+        font-size: 36px;
+        font-weight: bold;
+        z-index: 2;
+    }
+
+    .tab-content {
+        background-color: #f5f6f7;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+    #profileTabs{
+        display: flex;
+        justify-content: center;
+    }

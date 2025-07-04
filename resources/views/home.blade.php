@@ -16,25 +16,31 @@
     {{-- نموذج إنشاء بوست --}}
     <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="fb-post-form">
         @csrf
-        <textarea name="content" rows="3" placeholder="What’s on your mind?" required></textarea>
+        <textarea name="body" rows="3" placeholder="What’s on your mind?" required></textarea>
         <input type="file" name="images[]" multiple accept="image/*">
         <button type="submit">Post</button>
     </form>
 
     {{-- عرض البوستات --}}
-    @foreach(auth()->user()->posts()->latest()->get() as $post)
+    
+</div>
+
+
+<div class="fb-post-container" id="post-container">
+    @foreach($posts as $post)
         <div class="fb-post">
             <div class="fb-post-header">
-                <strong>{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</strong>
+                <strong>{{ $post->user->first_name }} {{ $post->user->last_name }}</strong>
                 <span class="timestamp">{{ $post->created_at->diffForHumans() }}</span>
             </div>
             <div class="fb-post-body">
-                <p>{{ $post->content }}</p>
+                <p>{{ $post->body }}</p>
 
-                @if($post->images && count($post->images))
+                @if($post->images->count())
                     <div class="fb-post-images">
                         @foreach($post->images as $image)
-                            <img src="{{ asset('storage/' . $image->path) }}" alt="Post Image">
+                            <img src="{{ asset('storage/' . $image->path) }}"
+                                 onclick="openCarousel({{ $post->id }}, {{ $loop->index }})">
                         @endforeach
                     </div>
                 @endif
@@ -43,6 +49,71 @@
     @endforeach
 </div>
 
+
+<div class="modal fade" id="postImageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-body p-0">
+        <div id="postCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner" id="postCarouselInner"></div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#postCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#postCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const posts = @json($posts);
+
+    function openCarousel(postId, startIndex = 0) {
+        const post = posts.find(p => p.id === postId);
+        if (!post || !post.images.length) return;
+
+        const inner = document.getElementById('postCarouselInner');
+        inner.innerHTML = '';
+
+        post.images.forEach((img, idx) => {
+            inner.innerHTML += `
+                <div class="carousel-item ${idx === startIndex ? 'active' : ''}">
+                    <img src="/storage/${img.path}" class="d-block w-100" style="max-height: 80vh; object-fit: contain;">
+                </div>
+            `;
+        });
+
+        new bootstrap.Modal(document.getElementById('postImageModal')).show();
+    }
+    let skip = 10;
+window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        loadMorePosts();
+    }
+});
+
+let loading = false;
+
+function loadMorePosts() {
+    if (loading) return;
+    loading = true;
+
+    fetch(`/load-posts?skip=${skip}`)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('post-container');
+            data.forEach(post => {
+                // Append post to container (استخدم نفس تنسيق HTML باليد أو من خلال قالب)
+            });
+            skip += data.length;
+            loading = false;
+        });
+}
+
+</script>
 
 
 

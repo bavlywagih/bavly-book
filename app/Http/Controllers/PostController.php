@@ -9,12 +9,12 @@ class PostController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'content' => 'nullable|string',
+        'body' => 'nullable|string',
         'images.*' => 'image|mimes:jpg,png,jpeg|max:2048',
     ]);
 
     $post = auth()->user()->posts()->create([
-        'content' => $request->content,
+        'body' => $request->body,
     ]);
 
     if ($request->hasFile('images')) {

@@ -1,1 +1,117 @@
-*{box-sizing:border-box;margin:0;padding:0}
+    /* * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .fb-header {
+      background: #1877f2;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+    }
+    .fb-header input {
+      border: none;
+      border-radius: 20px;
+      padding: 6px 10px;
+    }
+    .fb-header .icons span {
+      margin: 0 8px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .main {
+      display: flex;
+      max-width: 1200px;
+      margin: 20px auto;
+      gap: 20px;
+    }
+    .fb-sidebar {
+      width: 20%;
+    }
+    .fb-sidebar ul {
+      list-style: none;
+    }
+    .fb-sidebar li {
+      padding: 10px;
+      background: white;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .fb-feed {
+      width: 60%;
+    }
+    .post-creator {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .post-creator textarea {
+      width: 100%;
+      border: none;
+      resize: none;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #f0f2f5;
+    }
+    .post-creator button {
+      background: #1877f2;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      margin-top: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .post {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    .post-actions span {
+      margin-right: 15px;
+      cursor: pointer;
+    }
+    .fb-widgets {
+      width: 20%;
+    }
+    .fb-widgets .widget-box {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .fb-profile {
+      margin: 40px auto;
+      width: 80%;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .cover-photo {
+      height: 200px;
+      background: #ccc;
+    }
+    .profile-info {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+    }
+    .profile-info img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-right: 20px;
+    } */
+
+        * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
