@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login_post(Request $request)
     {
         $request->validate([
             'login' => 'required|string',

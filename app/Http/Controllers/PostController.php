@@ -8,28 +8,49 @@ class PostController extends Controller
 {
     public function store(Request $request)
 {
-    $request->validate([
-        'body' => 'nullable|string',
-        'images.*' => 'image|mimes:jpg,png,jpeg|max:2048',
-    ]);
+    try {
+        $request->validate([
+            'body' => 'nullable|string',
+            'images.*' => 'image|max:2048',
+        ]);
 
-    $post = auth()->user()->posts()->create([
-        'body' => $request->body,
-    ]);
+        $post = auth()->user()->posts()->create([
+            'body' => $request->input('body'),
+        ]);
 
-    if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $imageFile) {
-            $path = $imageFile->store('post_images', 'public');
-
-            $post->images()->create([
-                'user_id' => auth()->id(),
-                'path' => $path,
-                'type' => 'post',
-            ]);
+        // رفع الصور
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('post_images', 'public');
+                $post->images()->create([
+                    'path' => $path,
+                    'user_id' => auth()->id(),
+                ]);
+            }
         }
-    }
 
-    return redirect()->back()->with('success', 'تم نشر المنشور بنجاح');
+        $post->load([
+            'user.currentProfilePhoto',
+            'images',
+            'loves.user.currentProfilePhoto',
+        ]);
+
+        $post->user_loved = $post->loves->contains('user_id', auth()->id());
+        $post->created_at_diff = $post->created_at->diffForHumans();
+
+        return response()->json($post);
+
+    } catch (\Throwable $e) {
+        // سجل الخطأ في اللوج وارجعه في الريسبونس (وقت الديباج فقط!)
+        \Log::error($e);
+        return response()->json([
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
+        ], 500);
+    }
 }
+
+
 
 }

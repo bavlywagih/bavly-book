@@ -1,17 +1,19 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\LoveController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Models\PostView;
 use Illuminate\Support\Facades\Route;
 
 
 
-Route::middleware('auth')->get('/', [HomeController::class, 'home'])->name('home');
-Route::middleware('guest')->get('/login', [HomeController::class, 'home'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::get('/login', [HomeController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login_post'])->name('login_post');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -19,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/', [HomeController::class, 'home'])->name('home');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::post('/upload-image', [ImageController::class, 'upload'])->name('image.upload');
     Route::get('/profile/images/{type}', [ProfileController::class, 'getImages']);
@@ -27,20 +30,30 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::get('/load-posts', [HomeController::class, 'loadPosts']);
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/posts/{post}/view', function (\App\Models\Post $post) {
+        PostView::firstOrCreate([
+            'user_id' => auth()->id(),
+            'post_id' => $post->id,
+        ]);
+    });
 
+    // Route::post('/love-toggle', [LoveController::class, 'toggle'])->name('love.toggle');
+    Route::post('/posts/{post}/love', [LoveController::class, 'toggleLove']);
+    Route::get('/profile/images/{type}', function ($type) {
+        $user = auth()->user();
+
+        if (!in_array($type, ['profile', 'cover'])) {
+            return response()->json([], 400);
+        }
+
+        $images = $user->images()->where('type', $type)->orderByDesc('created_at')->get();
+
+        return response()->json($images);
+    });
 
 });
 
 
-Route::get('/profile/images/{type}', function ($type) {
-    $user = auth()->user();
 
-    if (!in_array($type, ['profile', 'cover'])) {
-        return response()->json([], 400);
-    }
-
-    $images = $user->images()->where('type', $type)->orderByDesc('created_at')->get();
-
-    return response()->json($images);
-});
 

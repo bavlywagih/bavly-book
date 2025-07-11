@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Blade::component('post.card', \App\View\Components\Post\Card::class);
+
         // تمرير بيانات صورة البروفايل إلى navbar تلقائيًا
         View::composer('partials.navbar.navbar', function ($view) {
             $user = Auth::user();

@@ -16,7 +16,7 @@
     <div class="logo"><a href="{{ route('home') }}" class="text-white text-decoration-none" >Bavlybook</a></div>
 
     <div class="search-box">
-      <input type="text" placeholder="Search Facebook">
+      <input type="text" placeholder="Search bavlybook">
     </div>
 
     <div class="icons">

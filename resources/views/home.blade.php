@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-
 @section('styles')
     <link rel="stylesheet" href="{{ mix('css/indexPage.css') }}">
     <link rel="stylesheet" href="{{ mix('css/post.css') }}">
@@ -14,28 +13,27 @@
 
 <div class="fb-post-container">
     {{-- نموذج إنشاء بوست --}}
-    <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="fb-post-form">
+    <form id="postForm" enctype="multipart/form-data" class="fb-post-form">
         @csrf
-        <textarea name="body" rows="3" placeholder="What’s on your mind?" required></textarea>
+        <textarea name="body" rows="3" placeholder="What’s on your mind?"></textarea>
         <input type="file" name="images[]" multiple accept="image/*">
         <button type="submit">Post</button>
+        <div id="postError" style="color:red; margin-top:10px;"></div>
     </form>
 
-    {{-- عرض البوستات --}}
-    
 </div>
-
 
 <div class="fb-post-container" id="post-container">
     @foreach($posts as $post)
         <div class="fb-post">
             <div class="fb-post-header">
+                <img src="{{ $post->user->currentProfilePhoto ? asset('storage/' . $post->user->currentProfilePhoto->path) : asset('image/default-user-photo.png') }}"
+                     class="profile-img shadow" style="width:32px;height:32px;border-radius:50%;margin-right:8px; object-fit: cover;">
                 <strong>{{ $post->user->first_name }} {{ $post->user->last_name }}</strong>
                 <span class="timestamp">{{ $post->created_at->diffForHumans() }}</span>
             </div>
             <div class="fb-post-body">
                 <p>{{ $post->body }}</p>
-
                 @if($post->images->count())
                     <div class="fb-post-images">
                         @foreach($post->images as $image)
@@ -44,12 +42,43 @@
                         @endforeach
                     </div>
                 @endif
+                <hr>
+
+                @php
+                    $userLoved = $post->loves->contains('user_id', auth()->id());
+                @endphp
+
+                <button class="love-btn" onclick="toggleLove({{ $post->id }}, this)">
+                    <i id="love-icon-{{ $post->id }}"class="{{ $userLoved ? 'fa-solid' : 'fa-regular' }} fa-heart fa-regular fa-heart "style="{{ $userLoved ? 'color:#ff0000;' : 'color:black;' }}"></i>
+                </button>
+
+                <span id="love-count-{{ $post->id }}" class="love-count" onclick="showLoveList({{ $post->id }})" style="cursor:pointer;">
+                    {{ $post->loves->count() }}
+                </span>
+
+
             </div>
         </div>
     @endforeach
 </div>
 
+<!-- Modal لعرض قائمة الإعجابات -->
+<div class="modal fade" id="loveListModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">المعجبون بالمنشور</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="loveListBody">
+        <!-- سيتم تعبئة الأشخاص بالجافاسكريبت -->
+      </div>
+    </div>
+  </div>
+</div>
 
+
+{{-- كارسول الصور --}}
 <div class="modal fade" id="postImageModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content bg-dark text-white">
@@ -67,6 +96,85 @@
     </div>
   </div>
 </div>
+
+<script>
+function showLoveList(postId) {
+    const post = posts.find(p => p.id === postId);
+    if (!post || !post.loves || post.loves.length === 0) {
+        document.getElementById('loveListBody').innerHTML = '<p>لا يوجد معجبون حتى الآن.</p>';
+    } else {
+        const html = post.loves.map(love => `
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <img src="${love.user.current_profile_photo ? '/storage/' + love.user.current_profile_photo.path : '{{ asset('image/default-user-photo.png') }}'}" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 10px;">
+                <span>${love.user.first_name} ${love.user.last_name}</span>
+            </div>
+        `).join('');
+        document.getElementById('loveListBody').innerHTML = html;
+    }
+
+    new bootstrap.Modal(document.getElementById('loveListModal')).show();
+}
+</script>
+
+
+<script>
+function toggleLove(postId, btn) {
+    // أنيميشن
+    btn.classList.add('clicked');
+    setTimeout(() => {
+        btn.classList.remove('clicked');
+    }, 400);
+
+    // AJAX Request
+    fetch(`/posts/${postId}/love`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+        // تحديث العداد
+        document.getElementById(`love-count-${postId}`).textContent = data.count;
+
+        // تحديث شكل الأيقونة
+        const icon = document.getElementById(`love-icon-${postId}`);
+        if (data.loved) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            icon.style.cssText = "color: #ff0000 !important;";
+        } else {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            icon.style.color = '';
+        }
+
+        // ✅ تحديث post.loves داخل المصفوفة
+        const post = posts.find(p => p.id === postId);
+        if (post) {
+            if (data.loved) {
+                post.loves.push({
+                    user_id: {{ auth()->id() }},
+                    user: {
+                        first_name: '{{ auth()->user()->first_name }}',
+                        last_name: '{{ auth()->user()->last_name }}',
+                        current_profile_photo: {!! auth()->user()->currentProfilePhoto ? json_encode([
+                            'path' => auth()->user()->currentProfilePhoto->path
+                        ]) : 'null' !!}
+                    }
+                });
+            } else {
+                post.loves = post.loves.filter(love => love.user_id !== {{ auth()->id() }});
+            }
+        }
+    });
+}
+
+
+
+</script>
 
 <script>
     const posts = @json($posts);
@@ -88,36 +196,159 @@
 
         new bootstrap.Modal(document.getElementById('postImageModal')).show();
     }
-    let skip = 10;
-window.addEventListener('scroll', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-        loadMorePosts();
-    }
+
+    // إرسال البوست الجديد بدون إعادة تحميل
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const errorDiv = document.getElementById('postError');
+    errorDiv.innerHTML = ''; // امسح الأخطاء السابقة
+
+    fetch("{{ route('posts.store') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            errorDiv.innerText = data.error;
+        } else {
+            form.reset(); // مسح البيانات
+            prependPost(data); // أضف البوست الجديد
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        errorDiv.innerText = 'حدث خطأ أثناء النشر';
+    });
 });
+    // تحميل بوستات عند الوصول لنهاية الصفحة
+    let skip = 10;
+    let loading = false;
 
-let loading = false;
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loadMorePosts();
+        }
+    });
 
-function loadMorePosts() {
-    if (loading) return;
-    loading = true;
+    function loadMorePosts() {
+        if (loading) return;
+        loading = true;
 
-    fetch(`/load-posts?skip=${skip}`)
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById('post-container');
-            data.forEach(post => {
-                // Append post to container (استخدم نفس تنسيق HTML باليد أو من خلال قالب)
+        fetch(`/load-posts?skip=${skip}`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(post => {
+                    renderPost(post);
+                    posts.push(post); // عشان الكاروسيل يشتغل
+                });
+                skip += data.length;
+                loading = false;
             });
-            skip += data.length;
-            loading = false;
-        });
+    }
+
+    // توليد HTML لبوست واحد
+    function renderPost(post, prepend = false) {
+        const container = document.getElementById('post-container');
+
+        const imgSrc = post.user.current_profile_photo
+            ? `/storage/${post.user.current_profile_photo.path}`
+            : `{{ asset('image/default-user-photo.png') }}`;
+
+const postHtml = `
+    <div class="fb-post">
+        <div class="fb-post-header">
+            <img src="${imgSrc}" class="profile-img" style="width:32px;height:32px;border-radius:50%;margin-right:8px;">
+            <strong>${post.user.first_name} ${post.user.last_name}</strong>
+            <span class="timestamp">${post.created_at_diff}</span>
+        </div>
+        <div class="fb-post-body">
+            <p>${post.body || ''}</p>
+            ${post.images.length ? `
+            <div class="fb-post-images">
+                ${post.images.map((img, idx) => `
+                    <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
+                `).join('')}
+            </div>` : ''}
+        </div>
+
+        <div class="fb-post-actions mt-2">
+            <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                <i id="love-icon-${post.id}"
+                   class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                   style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
+            </button>
+
+            <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;"
+                  onclick="showLoveList(${post.id})">
+                ${post.loves.length}
+            </span>
+        </div>
+    </div>
+`;
+
+
+        if (prepend) {
+            container.insertAdjacentHTML('afterbegin', postHtml);
+        } else {
+            container.insertAdjacentHTML('beforeend', postHtml);
+        }
+    }
+</script>
+<script>
+function prependPost(post) {
+    const container = document.getElementById('post-container');
+
+    const profileImage = post.user.current_profile_photo
+        ? `/storage/${post.user.current_profile_photo.path}`
+        : "/images/default-user-photo.png";
+
+    const imagesHTML = post.images.map((img, idx) => `
+        <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
+    `).join('');
+
+    const postHTML = `
+        <div class="fb-post">
+            <div class="fb-post-header">
+                <img src="${profileImage}" alt="Profile" class="profile-pic shadow" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px; object-fit:cover;">
+                <strong>${post.user.first_name} ${post.user.last_name}</strong>
+                <span class="timestamp">الآن</span>
+            </div>
+            <div class="fb-post-body">
+                <p>${post.body ?? ''}</p>
+                ${imagesHTML ? `<div class="fb-post-images">${imagesHTML}</div>` : ''}
+                <hr>
+                <div class="fb-post-actions mt-2">
+                    <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                        <i id="love-icon-${post.id}"
+                           class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                           style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}">
+                        </i>
+                    </button>
+
+                    <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;"
+                          onclick="showLoveList(${post.id})">
+                        ${post.loves.length}
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('afterbegin', postHTML);
+    posts.unshift(post); // حتى يتمكن الكاروسيل من إيجاد الصور
 }
 
 </script>
 
-
-
 @else
+    {{-- تسجيل الدخول أو إنشاء حساب --}}
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -182,8 +413,10 @@ function loadMorePosts() {
             <p>Facebook © 2025</p>
         </div>
     </footer>
-
 @endauth
+
+@endsection
+
 {{-- 
 
 <div class="main">
@@ -222,4 +455,3 @@ function loadMorePosts() {
   </div>
 </section> --}}
 
-@endsection

@@ -2,6 +2,8 @@ const mix = require('laravel-mix');
 
 mix.js('resources/js/script.js', 'public/js')
    .js('resources/js/bootstrap.min.js', 'public/js')
+
+   
    .css('resources/css/style.css', 'public/css')
    .css('resources/css/bootstrap/bootstrap.min.css', 'public/css') 
    .css('resources/css/pertails/navbar/navbar.css', 'public/css') 

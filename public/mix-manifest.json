@@ -1,11 +1,16 @@
 {
-    "/js/script.js": "/js/script.js?id=5ab69b63551dd1edf6b04266add4bb08",
-    "/js/bootstrap.min.js": "/js/bootstrap.min.js?id=dfbc5f7b93e100b94c09c63d48881983",
-    "/css/nav-auth.css": "/css/nav-auth.css?id=7b0740d14c0bb3759983016955b1a174",
-    "/css/post.css": "/css/post.css?id=143af7440d42a221ec7d0eed1cbc9d85",
-    "/css/navbar.css": "/css/navbar.css?id=125ec8141d8063045348620a43f639f7",
-    "/css/bootstrap.min.css": "/css/bootstrap.min.css?id=6bf2591e84c483e743823b185b226aa4",
-    "/css/style.css": "/css/style.css?id=41b849c16acf99e5599c959484ddfd45",
-    "/css/indexPage.css": "/css/indexPage.css?id=9046517975265633b9a1f31f18e524ea",
-    "/css/profile.css": "/css/profile.css?id=d63cf3784eec0a0500352949f73b3026"
+    "/js/script.js": "/js/script.js",
+    "/js/bootstrap.min.js": "/js/bootstrap.min.js",
+    "/js/pages/home.js": "/js/pages/home.js?id=c365663905f810accd30fda0cb8aae8f",
+    "/js/components/love.js": "/js/components/love.js?id=70a1f205d6c4e4638a48ce30a72f652a",
+    "/js/components/posts.js": "/js/components/posts.js?id=a8e63491015f5173f34b9840ad554587",
+    "/js/components/PostFormComponent.js": "/js/components/PostFormComponent.js?id=40842fbc5534aa8239368e25ed9a7028",
+    "/js/components/carousel.js": "/js/components/carousel.js?id=01d30e03775b014d156ed230735276cb",
+    "/css/nav-auth.css": "/css/nav-auth.css",
+    "/css/post.css": "/css/post.css",
+    "/css/navbar.css": "/css/navbar.css",
+    "/css/bootstrap.min.css": "/css/bootstrap.min.css",
+    "/css/style.css": "/css/style.css",
+    "/css/indexPage.css": "/css/indexPage.css",
+    "/css/profile.css": "/css/profile.css"
 }

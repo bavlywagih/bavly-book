@@ -71,3 +71,38 @@
     cursor: pointer;
     border-radius: 5px;
 }
+
+
+.love-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.love-btn.clicked i {
+    animation: popLove 0.4s ease;
+}
+
+@keyframes popLove {
+0% {
+    transform: scale(1);
+    color: white;
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.5);
+    color: #ff0000;
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    color: #ff0000;
+    opacity: 1;
+  }
+}
+.fa-regular{
+    color: black;
+}

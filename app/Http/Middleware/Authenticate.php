@@ -8,6 +8,6 @@ class Authenticate extends Middleware
 {
     protected function redirectTo($request): ?string
     {
-        return route('home'); // ✅ بدل login
+        return route('guest'); // ✅ بدل login
     }
 }
