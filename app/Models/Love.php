@@ -11,7 +11,7 @@ class Love extends Model
 
     protected $fillable = ['user_id', 'post_id'];
 
-    protected $table = 'loves'; // تأكيد إن اسم الجدول صح
+    protected $table = 'loves';
 
     public function user()
     {

@@ -26,9 +26,8 @@ public function definition(): array
         'post' => 'post_images/',
     };
 
-    // استخدم أسماء حقيقية من الصور الموجودة
-    $number = rand(1, 10); // assuming you have 10 صور لكل نوع
-    $filename = $folder . $number . '.jpg'; // or png/webp لو عندك منهم فعلاً
+    $number = rand(1, 10); 
+    $filename = $folder . $number . '.jpg'; 
 
     return [
         'user_id' => \App\Models\User::factory(),

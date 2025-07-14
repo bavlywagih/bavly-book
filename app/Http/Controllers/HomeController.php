@@ -33,10 +33,6 @@ public function home()
         ->take(10)
         ->get();
 
-    
-
-    // دمجهم معًا
-
     $posts = $posts->map(function ($post) use ($user) {
         if (!$post->views->contains('user_id', $user->id)) {
             PostView::create([
@@ -83,7 +79,7 @@ public function loadPosts(Request $request)
         ])
         ->withCount('loves')
         ->inRandomOrder()
-        ->take(5)
+        ->take(15)
         ->get();
 
     $posts->map(function ($post) use ($user) {

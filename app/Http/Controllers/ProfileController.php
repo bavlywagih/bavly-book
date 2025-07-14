@@ -14,7 +14,6 @@ public function show()
 {
     $user = Auth::user();
 
-    // تعيين أحدث صورة كـ current إذا لا يوجد واحدة مفعّلة
     foreach (['cover', 'profile'] as $type) {
         $hasCurrent = $user->images()->where('type', $type)->where('is_current', true)->exists();
         if (!$hasCurrent) {
@@ -40,7 +39,7 @@ public function getImages($type)
                 return [
                     'id' => $img->id,
                     'path' => $img->path,
-                    'url' => asset('storage/' . $img->path), // هذا المهم
+                    'url' => asset('storage/' . $img->path),  
                 ];
             });
     }
@@ -62,21 +61,18 @@ public function setCurrentImage(Request $request)
         return response()->json(['error' => 'الصورة غير موجودة أو غير تابعة للمستخدم'], 404);
     }
 
-    // جعل كل الصور السابقة غير حالية
     Image::where('user_id', auth()->id())
         ->where('type', $request->type)
         ->update(['is_current' => false]);
 
-    // تعيين هذه الصورة كـ الحالية
     $image->is_current = true;
-    $image->created_at = now(); // ✅ إضافة هذا السطر
+    $image->created_at = now(); 
     $image->save();
 
     return response()->json(['success' => 'تم تعيين الصورة كالحالية']);
 }
 
 
-// ProfileController.php
 public function update(Request $request)
 {
     $user = auth()->user();

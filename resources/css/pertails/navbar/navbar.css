@@ -82,3 +82,9 @@ body{
 .w-nav-100{
 	width: 100% !important;
 }
+
+.sticky-navbar{
+	position: sticky;
+    top: 0;
+	z-index: 1000;
+}

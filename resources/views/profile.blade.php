@@ -14,7 +14,6 @@
             <input type="hidden" name="type" value="cover">
         </form>
 
-        {{-- <h2>{{ $user->first_name }} {{ $user->last_name }}</h2> --}}
         
         <div class="profile-photo-container" onclick="event.stopPropagation(); showModal('profile')" style="background-image: url('{{ auth()->user()->currentProfilePhoto ? Storage::url(auth()->user()->currentProfilePhoto->path) : asset('image/default-user-photo.png') }}') ; z-index: 2;">
             <div class="profile-edit-btn" onclick="event.stopPropagation(); document.getElementById('profile-input').click()">Change</div>
@@ -119,7 +118,6 @@
                         <p><strong>gender:</strong> {{ $user->gender == 'male' ? 'ذكر' : ($user->gender == 'female' ? 'أنثى' : 'غير محدد') }}</p>
                     </div>
 
-                    <!-- نموذج التحديث (مخفي في البداية) -->
                     <form id="edit-form" class="d-none" method="POST" action="{{ route('profile.update') }}">
                         @csrf
                         @method('PUT')
@@ -171,9 +169,7 @@
             </div>
         </div>
     </div>
-{{-- </div> --}}
 
-    {{-- < --}}
 <script>
     function toggleEditForm() {
         document.getElementById('edit-form').classList.toggle('d-none');
@@ -183,19 +179,17 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // 1. اقرأ التاب من URL
+    
     const urlParams = new URLSearchParams(window.location.search);
     const tab = urlParams.get('tab');
 
     if (tab) {
         const trigger = document.querySelector(`button[data-bs-target="#${tab}"]`);
         if (trigger) {
-            // فعّل التاب المحدد
             new bootstrap.Tab(trigger).show();
         }
     }
 
-    // 2. عند التنقل بين التابات، عدّل عنوان الصفحة بدون إعادة تحميل
     const tabButtons = document.querySelectorAll('button[data-bs-toggle="tab"]');
     tabButtons.forEach(button => {
         button.addEventListener('shown.bs.tab', function (event) {

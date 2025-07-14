@@ -16,10 +16,8 @@ class PostSeeder extends Seeder
 
 public function run()
 {
-    // أنشئ مثلاً 20 مستخدم وكل واحد يعمل بوستات
     User::factory(10)->create()->each(function ($user) {
         Post::factory(rand(2, 5))->create(['user_id' => $user->id])->each(function ($post) use ($user) {
-            // عدد عشوائي من الصور لكل بوست
             $imageCount = rand(1, 5);
 
             for ($i = 0; $i < $imageCount; $i++) {
@@ -34,7 +32,6 @@ public function run()
             }
         });
 
-        // صورة غلاف
         Image::create([
             'user_id' => $user->id,
             'post_id' => null,
@@ -43,7 +40,6 @@ public function run()
             'is_current' => true,
         ]);
 
-        // صورة بروفايل
         Image::create([
             'user_id' => $user->id,
             'post_id' => null,

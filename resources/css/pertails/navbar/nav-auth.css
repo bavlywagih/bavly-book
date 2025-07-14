@@ -78,3 +78,9 @@
     .dropdown a:hover {
       background-color: #f2f2f2;
     }
+
+    .sticky-navbar{
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }

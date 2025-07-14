@@ -12,7 +12,7 @@
    
 @auth
 
-  <header class="fb-header">
+  <header class="fb-header sticky-navbar">
     <div class="logo"><a href="{{ route('home') }}" class="text-white text-decoration-none" >Bavlybook</a></div>
 
     <div class="search-box">
@@ -56,7 +56,7 @@
 
 @endauth  
   @guest
-  <header class="fb-header">
+  <header class="fb-header sticky-navbar">
       <div class="inner-header @auth w-nav-100 @endauth">
           <a href="{{ route('home') }}"  class="a-link-mame"><h1 class="fb-header-logo" >Bavlybook</h1></a>
         <form method="POST" action="{{ route('login') }}" class="login-grid">

@@ -12,15 +12,28 @@
 @auth
 
 <div class="fb-post-container">
-    {{-- نموذج إنشاء بوست --}}
-    <form id="postForm" enctype="multipart/form-data" class="fb-post-form">
-        @csrf
-        <textarea name="body" rows="3" placeholder="What’s on your mind?"></textarea>
-        <input type="file" name="images[]" multiple accept="image/*">
-        <button type="submit">Post</button>
-        <div id="postError" style="color:red; margin-top:10px;"></div>
-    </form>
 
+    <form id="postForm" enctype="multipart/form-data">
+        @csrf
+        <div class="card p-3 mb-4 shadow-sm" style="max-width: 600px; margin: auto;">
+            <div class="d-flex mb-3">
+            <img src="{{ $user->currentProfilePhoto ? asset('storage/' . $user->currentProfilePhoto->path) : asset('image/default-user-photo.png') }}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            <textarea class="form-control ms-2" rows="2" placeholder="What's on your mind?" name="body" id="body"></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <label class="btn btn-sm btn-light border">
+                        📷
+                        <input type="file" name="images[]" id="images" multiple hidden>
+                    </label>
+                </div>
+                <button class="btn btn-primary btn-sm w-100 m-2" type="submit">post now !</button>
+            </div>
+
+            <div id="postError" class="text-danger mt-2" style="font-size: 14px;"></div>
+        </div>
+    </form>
 </div>
 
 <div class="fb-post-container" id="post-container">
@@ -68,7 +81,6 @@
     @endforeach
 </div>
 
-<!-- Modal لعرض قائمة الإعجابات -->
 <div class="modal fade" id="loveListModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -77,14 +89,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="loveListBody">
-        <!-- سيتم تعبئة الأشخاص بالجافاسكريبت -->
       </div>
     </div>
   </div>
 </div>
 
 
-{{-- كارسول الصور --}}
 <div class="modal fade" id="postImageModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content bg-dark text-white">
@@ -125,13 +135,11 @@ function showLoveList(postId) {
 
 <script>
 function toggleLove(postId, btn) {
-    // أنيميشن
     btn.classList.add('clicked');
     setTimeout(() => {
         btn.classList.remove('clicked');
     }, 400);
 
-    // AJAX Request
     fetch(`/posts/${postId}/love`, {
         method: 'POST',
         headers: {
@@ -142,10 +150,7 @@ function toggleLove(postId, btn) {
     })
     .then(res => res.json())
     .then(data => {
-        // تحديث العداد
         document.getElementById(`love-count-${postId}`).textContent = data.count;
-
-        // تحديث شكل الأيقونة
         const icon = document.getElementById(`love-icon-${postId}`);
         if (data.loved) {
             icon.classList.remove('fa-regular');
@@ -157,7 +162,6 @@ function toggleLove(postId, btn) {
             icon.style.color = '';
         }
 
-        // ✅ تحديث post.loves داخل المصفوفة
         const post = posts.find(p => p.id === postId);
         if (post) {
             if (data.loved) {
@@ -203,14 +207,13 @@ function toggleLove(postId, btn) {
         new bootstrap.Modal(document.getElementById('postImageModal')).show();
     }
 
-    // إرسال البوست الجديد بدون إعادة تحميل
     document.getElementById('postForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
     const formData = new FormData(form);
     const errorDiv = document.getElementById('postError');
-    errorDiv.innerHTML = ''; // امسح الأخطاء السابقة
+    errorDiv.innerHTML = ''; 
 
     fetch("{{ route('posts.store') }}", {
         method: 'POST',
@@ -224,8 +227,8 @@ function toggleLove(postId, btn) {
         if (data.error) {
             errorDiv.innerText = data.error;
         } else {
-            form.reset(); // مسح البيانات
-            prependPost(data); // أضف البوست الجديد
+            form.reset(); 
+            prependPost(data); 
         }
     })
     .catch(error => {
@@ -233,7 +236,6 @@ function toggleLove(postId, btn) {
         errorDiv.innerText = 'حدث خطأ أثناء النشر';
     });
 });
-    // تحميل بوستات عند الوصول لنهاية الصفحة
     let skip = 10;
     let loading = false;
 
@@ -252,14 +254,13 @@ function toggleLove(postId, btn) {
             .then(data => {
                 data.forEach(post => {
                     renderPost(post);
-                    posts.push(post); // عشان الكاروسيل يشتغل
+                    posts.push(post); 
                 });
                 skip += data.length;
                 loading = false;
             });
     }
 
-    // توليد HTML لبوست واحد
     function renderPost(post, prepend = false) {
         const container = document.getElementById('post-container');
 
@@ -360,13 +361,13 @@ function prependPost(post) {
     `;
     
     container.insertAdjacentHTML('afterbegin', postHTML);
-    posts.unshift(post); // حتى يتمكن الكاروسيل من إيجاد الصور
+    posts.unshift(post); 
 }
 
 </script>
 
 @else
-    {{-- تسجيل الدخول أو إنشاء حساب --}}
+   
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>

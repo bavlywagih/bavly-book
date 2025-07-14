@@ -85,7 +85,6 @@ function toggleLove(postId, btn) {
             icon.style.color = '';
         }
 
-        // 🔄 تحديث post.loves في المصفوفة
         const post = posts.find(p => p.id === postId);
         if (post) {
             const userId = {{ auth()->id() }};
@@ -97,10 +96,8 @@ function toggleLove(postId, btn) {
             };
 
             if (data.loved) {
-                // أضف المستخدم
                 post.loves.push({ user_id: userId, user: user });
             } else {
-                // احذف المستخدم
                 post.loves = post.loves.filter(love => love.user_id !== userId);
             }
         }

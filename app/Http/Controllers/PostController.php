@@ -23,7 +23,6 @@ class PostController extends Controller
             'body' => $request->input('body'),
         ]);
 
-        // رفع الصور
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('post_images', 'public');
@@ -46,7 +45,6 @@ class PostController extends Controller
         return response()->json($post);
 
     } catch (\Throwable $e) {
-        // سجل الخطأ في اللوج وارجعه في الريسبونس (وقت الديباج فقط!)
         \Log::error($e);
         return response()->json([
             'error' => $e->getMessage(),

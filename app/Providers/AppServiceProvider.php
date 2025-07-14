@@ -24,7 +24,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::component('post.card', \App\View\Components\Post\Card::class);
 
-        // تمرير بيانات صورة البروفايل إلى navbar تلقائيًا
         View::composer('partials.navbar.navbar', function ($view) {
             $user = Auth::user();
 
