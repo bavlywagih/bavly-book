@@ -13,6 +13,11 @@ class PostController extends Controller
             'body' => 'nullable|string',
             'images.*' => 'image|max:2048',
         ]);
+        if (!$request->filled('body') && !$request->hasFile('images')) {
+            return response()->json([
+                'error' => 'يجب كتابة نص أو رفع صورة واحدة على الأقل.'
+            ], 422);
+        }
 
         $post = auth()->user()->posts()->create([
             'body' => $request->input('body'),

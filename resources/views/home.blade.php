@@ -43,18 +43,24 @@
                     </div>
                 @endif
                 <hr>
+                <div class="d-flex align-items-center justify-content-between">
 
-                @php
+                    @php
                     $userLoved = $post->loves->contains('user_id', auth()->id());
-                @endphp
+                    @endphp
+                    <div>
+                        <button class="love-btn" onclick="toggleLove({{ $post->id }}, this)">
+                            <i id="love-icon-{{ $post->id }}"class="{{ $userLoved ? 'fa-solid' : 'fa-regular' }} fa-heart fa-regular fa-heart "style="{{ $userLoved ? 'color:#ff0000;' : 'color:black;' }}"></i>
+                        </button>
+                        
+                        <span id="love-count-{{ $post->id }}" class="love-count" onclick="showLoveList({{ $post->id }})" style="cursor:pointer;">
+                            {{ $post->loves->count() }}
+                        </span>
+                    </div>
 
-                <button class="love-btn" onclick="toggleLove({{ $post->id }}, this)">
-                    <i id="love-icon-{{ $post->id }}"class="{{ $userLoved ? 'fa-solid' : 'fa-regular' }} fa-heart fa-regular fa-heart "style="{{ $userLoved ? 'color:#ff0000;' : 'color:black;' }}"></i>
-                </button>
+                    <span>👁️ {{ $post->view_count }}</span>
 
-                <span id="love-count-{{ $post->id }}" class="love-count" onclick="showLoveList({{ $post->id }})" style="cursor:pointer;">
-                    {{ $post->loves->count() }}
-                </span>
+                </div>
 
 
             </div>
@@ -279,16 +285,22 @@ const postHtml = `
         </div>
 
         <div class="fb-post-actions mt-2">
-            <button class="love-btn" onclick="toggleLove(${post.id}, this)">
-                <i id="love-icon-${post.id}"
-                   class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
-                   style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
-            </button>
 
-            <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;"
-                  onclick="showLoveList(${post.id})">
-                ${post.loves.length}
-            </span>
+
+            <div class="d-flex align-items-center justify-content-between mt-2">
+                <div>
+                    <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                        <i id="love-icon-${post.id}"
+                        class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                        style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
+                    </button>
+                    <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
+                        ${post.loves.length}
+                    </span>
+                </div>
+                <span>👁️ ${post.view_count}</span>
+            </div>
+
         </div>
     </div>
 `;
@@ -312,7 +324,7 @@ function prependPost(post) {
     const imagesHTML = post.images.map((img, idx) => `
         <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
     `).join('');
-
+    post.view_count = post.view_count ?? 0;
     const postHTML = `
         <div class="fb-post">
             <div class="fb-post-header">
@@ -325,17 +337,23 @@ function prependPost(post) {
                 ${imagesHTML ? `<div class="fb-post-images">${imagesHTML}</div>` : ''}
                 <hr>
                 <div class="fb-post-actions mt-2">
-                    <button class="love-btn" onclick="toggleLove(${post.id}, this)">
-                        <i id="love-icon-${post.id}"
-                           class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
-                           style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}">
-                        </i>
-                    </button>
 
-                    <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;"
-                          onclick="showLoveList(${post.id})">
-                        ${post.loves.length}
-                    </span>
+
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <div>
+                            <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                                <i id="love-icon-${post.id}"
+                                class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                                style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}">
+                                </i>
+                            </button>
+                            <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
+                                ${post.loves.length}
+                            </span>
+                        </div>
+                        <span>👁️ ${post.view_count}</span>
+                    </div>
+
                 </div>
             </div>
         </div>
