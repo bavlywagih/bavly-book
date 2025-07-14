@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'body' => 'nullable|string',
@@ -30,9 +30,10 @@ class CommentController extends Controller
         }
     }
 
-    $comment->load('user', 'images', 'replies');
+    $comment->load('user', 'images', 'replies.user', 'loves');
 
     return response()->json($comment);
 }
+
 
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentLoveController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LoveController;
@@ -37,6 +38,22 @@ Route::middleware(['auth'])->group(function () {
             'post_id' => $post->id,
         ]);
     });
+    Route::post('/comments/{comment}/love', [CommentLoveController::class, 'toggle']);
+    Route::get('/comments/{comment}/loves', function (\App\Models\Comment $comment) {
+        $comment->load('loves.user.currentProfilePhoto');
+        return $comment->loves;
+    });
+
+    Route::get('/comments/{comment}/html', function (\App\Models\Comment $comment) {
+        $comment->load('user', 'images', 'loves', 'replies.user', 'replies.images', 'replies.loves');
+        return view('components.comment', ['comment' => $comment])->render();
+    });
+    Route::get('/posts/{post}/comments/html', function (\App\Models\Post $post) {
+        $post->load('comments.user.currentProfilePhoto', 'comments.images', 'comments.loves', 'comments.replies.user.currentProfilePhoto', 'comments.replies.images', 'comments.replies.loves');
+        return view('partials.comments', ['post' => $post])->render();
+    });
+
+
 
     // Route::post('/love-toggle', [LoveController::class, 'toggle'])->name('love.toggle');
     Route::post('/posts/{post}/love', [LoveController::class, 'toggleLove']);

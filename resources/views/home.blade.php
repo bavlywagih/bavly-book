@@ -37,6 +37,7 @@
 </div>
 
 <div class="fb-post-container" id="post-container">
+    
     @foreach($posts as $post)
         <div class="fb-post">
             <div class="fb-post-header">
@@ -74,7 +75,19 @@
                     <span>👁️ {{ $post->view_count }}</span>
 
                 </div>
+                <div id="comments-{{ $post->id }}">
+                    @foreach($post->comments->where('parent_id', null) as $comment)
+                        @include('components.comment', ['comment' => $comment])
+                    @endforeach
+                </div>
 
+                <form class="comment-form mt-3" data-post-id="{{ $post->id }}">
+                    @csrf
+                    <input type="hidden" name="post_id" value="{{ $post->id }}">
+                    <input type="hidden" name="parent_id" class="parent-id">
+                    <textarea name="body" class="form-control comment-body" rows="2" placeholder="اكتب تعليقًا..."></textarea>
+                    <button class="btn btn-sm btn-primary mt-2">نشر</button>
+                </form>
 
             </div>
         </div>
@@ -112,6 +125,192 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="commentLoveListModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">المعجبون بالتعليق</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+      </div>
+      <div class="modal-body" id="commentLoveListBody">
+        جاري التحميل...
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+    function attachCommentFormListeners() {
+    document.querySelectorAll('.comment-form').forEach(form => {
+        // لو سبق واتركبله لستينر، ما نركبش تاني
+        if (form.dataset.listenerAttached) return;
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const postId = form.getAttribute('data-post-id');
+            const container = document.getElementById('comments-' + postId);
+
+            if (!container) return;
+
+            fetch("/comments", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(comment => fetch(`/comments/${comment.id}/html`))
+                .then(res => res.text())
+                .then(html => {
+                    container.insertAdjacentHTML('afterbegin', html);
+                    form.reset();
+                    form.querySelector('.parent-id').value = '';
+                    history.replaceState(null, '', window.location.pathname);
+
+                })
+                .catch(error => {
+                    console.error('خطأ أثناء إرسال التعليق:', error);
+                });
+        });
+
+        // علشان ما نكررش اللستينر
+        form.dataset.listenerAttached = true;
+    });
+}
+
+function toggleCommentLove(commentId) {
+    fetch(`/comments/${commentId}/love`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('comment-love-count-' + commentId).innerText = data.count;
+    });
+}
+
+function showCommentLoveList(commentId) {
+    fetch(`/comments/${commentId}/loves`)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('commentLoveListBody');
+            if (!data.length) {
+                container.innerHTML = "<p>لا يوجد معجبون بعد.</p>";
+                return;
+            }
+
+            const html = data.map(love => `
+                <div class="d-flex align-items-center mb-2">
+                    <img src="${love.user.current_profile_photo ? '/storage/' + love.user.current_profile_photo.path : '{{ asset('images/default-user-photo.png') }}'}"
+                         class="rounded-circle me-2"
+                         style="width: 32px; height: 32px; object-fit: cover;">
+                    <span>${love.user.first_name} ${love.user.last_name}</span>
+                </div>
+            `).join('');
+            container.innerHTML = html;
+        });
+
+    new bootstrap.Modal(document.getElementById('commentLoveListModal')).show();
+}
+</script>
+<script>
+    function toggleFullComment(id) {
+    const bodyEl = document.getElementById('comment-body-' + id);
+    const toggleBtn = document.getElementById('toggle-comment-' + id);
+
+    const fullText = toggleBtn.getAttribute('data-full');
+    const shortText = toggleBtn.getAttribute('data-short');
+
+    if (toggleBtn.innerText.trim() === 'عرض المزيد') {
+        bodyEl.innerHTML = fullText;
+        toggleBtn.innerText = 'عرض أقل';
+    } else {
+        bodyEl.innerHTML = shortText;
+        toggleBtn.innerText = 'عرض المزيد';
+    }
+}
+</script>
+<script>
+    // ==================== التعليقات والردود ====================
+function replyTo(name, commentId, postId) {
+    const form = document.querySelector(`.comment-form[data-post-id="${postId}"]`);
+    if (form) {
+        const textarea = form.querySelector('.comment-body');
+        const parentInput = form.querySelector('.parent-id');
+        if (textarea && parentInput) {
+            textarea.value = `@${name} `;
+            parentInput.value = commentId;
+            textarea.focus();
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.comment-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const postId = form.getAttribute('data-post-id');
+            const container = document.getElementById('comments-' + postId);
+
+            if (!container) return;
+
+            fetch("/comments", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(comment => {
+                    return fetch(`/comments/${comment.id}/html`);
+                })
+                .then(res => res.text())
+                .then(html => {
+                    container.insertAdjacentHTML('afterbegin', html);
+                    form.reset();
+                    const parentInput = form.querySelector('.parent-id');
+                    if (parentInput) parentInput.value = '';
+                        history.replaceState(null, '', window.location.pathname);
+
+                })
+                .catch(error => {
+                    console.error('خطأ أثناء إرسال التعليق:', error);
+                });
+        });
+    });
+});
+
+function toggleCommentLove(commentId) {
+    fetch(`/comments/${commentId}/love`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            const countSpan = document.getElementById('comment-love-count-' + commentId);
+            if (countSpan) countSpan.innerText = data.count;
+        })
+        .catch(error => {
+            console.error('خطأ أثناء تسجيل الإعجاب:', error);
+        });
+}
+
+</script>
 
 <script>
 function showLoveList(postId) {
@@ -262,57 +461,66 @@ function toggleLove(postId, btn) {
     }
 
     function renderPost(post, prepend = false) {
-        const container = document.getElementById('post-container');
+    const container = document.getElementById('post-container');
 
-        const imgSrc = post.user.current_profile_photo
-            ? `/storage/${post.user.current_profile_photo.path}`
-            : `{{ asset('image/default-user-photo.png') }}`;
+    const imgSrc = post.user.current_profile_photo
+        ? `/storage/${post.user.current_profile_photo.path}`
+        : `{{ asset('image/default-user-photo.png') }}`;
 
-const postHtml = `
-    <div class="fb-post">
-        <div class="fb-post-header">
-            <img src="${imgSrc}" class="profile-img" style="width:32px;height:32px;border-radius:50%;margin-right:8px;">
-            <strong>${post.user.first_name} ${post.user.last_name}</strong>
-            <span class="timestamp">${post.created_at_diff}</span>
-        </div>
-        <div class="fb-post-body">
-            <p>${post.body || ''}</p>
-            ${post.images.length ? `
-            <div class="fb-post-images">
-                ${post.images.map((img, idx) => `
-                    <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
-                `).join('')}
-            </div>` : ''}
-        </div>
+    const imagesHTML = post.images.length ? `
+        <div class="fb-post-images">
+            ${post.images.map((img, idx) => `
+                <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
+            `).join('')}
+        </div>` : '';
 
-        <div class="fb-post-actions mt-2">
-
-
-            <div class="d-flex align-items-center justify-content-between mt-2">
-                <div>
-                    <button class="love-btn" onclick="toggleLove(${post.id}, this)">
-                        <i id="love-icon-${post.id}"
-                        class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
-                        style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
-                    </button>
-                    <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
-                        ${post.loves.length}
-                    </span>
-                </div>
-                <span>👁️ ${post.view_count}</span>
+    const postHTML = `
+        <div class="fb-post">
+            <div class="fb-post-header">
+                <img src="${imgSrc}" class="profile-img" style="width:32px;height:32px;border-radius:50%;margin-right:8px;">
+                <strong>${post.user.first_name} ${post.user.last_name}</strong>
+                <span class="timestamp">${post.created_at_diff}</span>
             </div>
-
+            <div class="fb-post-body">
+                <p>${post.body || ''}</p>
+                ${imagesHTML}
+                <hr>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                            <i id="love-icon-${post.id}"
+                            class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                            style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
+                        </button>
+                        <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
+                            ${post.loves.length}
+                        </span>
+                    </div>
+                    <span>👁️ ${post.view_count}</span>
+                </div>
+            </div>
         </div>
-    </div>
-`;
+    `;
 
-
-        if (prepend) {
-            container.insertAdjacentHTML('afterbegin', postHtml);
-        } else {
-            container.insertAdjacentHTML('beforeend', postHtml);
-        }
+    if (prepend) {
+        container.insertAdjacentHTML('afterbegin', postHTML);
+    } else {
+        container.insertAdjacentHTML('beforeend', postHTML);
     }
+
+    // ✅ تحميل التعليقات بعد عرض البوست
+    const targetPost = container.querySelector(prepend ? '.fb-post:first-child' : '.fb-post:last-child');
+    const fbPostBody = targetPost.querySelector('.fb-post-body');
+
+    fetch(`/posts/${post.id}/comments/html`)
+        .then(res => res.text())
+        .then(html => {
+            fbPostBody.insertAdjacentHTML('beforeend', html);
+        });
+    attachCommentFormListeners();
+
+}
+
 </script>
 <script>
 function prependPost(post) {
@@ -325,7 +533,9 @@ function prependPost(post) {
     const imagesHTML = post.images.map((img, idx) => `
         <img src="/storage/${img.path}" onclick="openCarousel(${post.id}, ${idx})">
     `).join('');
+
     post.view_count = post.view_count ?? 0;
+
     const postHTML = `
         <div class="fb-post">
             <div class="fb-post-header">
@@ -337,32 +547,38 @@ function prependPost(post) {
                 <p>${post.body ?? ''}</p>
                 ${imagesHTML ? `<div class="fb-post-images">${imagesHTML}</div>` : ''}
                 <hr>
-                <div class="fb-post-actions mt-2">
-
-
-                    <div class="d-flex align-items-center justify-content-between mt-2">
-                        <div>
-                            <button class="love-btn" onclick="toggleLove(${post.id}, this)">
-                                <i id="love-icon-${post.id}"
-                                class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
-                                style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}">
-                                </i>
-                            </button>
-                            <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
-                                ${post.loves.length}
-                            </span>
-                        </div>
-                        <span>👁️ ${post.view_count}</span>
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <div>
+                        <button class="love-btn" onclick="toggleLove(${post.id}, this)">
+                            <i id="love-icon-${post.id}"
+                            class="${post.user_loved ? 'fa-solid' : 'fa-regular'} fa-heart"
+                            style="${post.user_loved ? 'color:#ff0000 !important;' : 'color:black;'}"></i>
+                        </button>
+                        <span id="love-count-${post.id}" class="love-count" style="cursor:pointer;" onclick="showLoveList(${post.id})">
+                            ${post.loves.length}
+                        </span>
                     </div>
-
+                    <span>👁️ ${post.view_count}</span>
                 </div>
             </div>
         </div>
     `;
-    
+
     container.insertAdjacentHTML('afterbegin', postHTML);
-    posts.unshift(post); 
+    posts.unshift(post);
+
+    // ✅ تحميل التعليقات الخاصة بالبوست الجديد
+    const fbPost = container.querySelector('.fb-post:first-child');
+    const fbPostBody = fbPost.querySelector('.fb-post-body');
+
+    fetch(`/posts/${post.id}/comments/html`)
+        .then(res => res.text())
+        .then(html => {
+            fbPostBody.insertAdjacentHTML('beforeend', html);
+        });
+    attachCommentFormListeners();   
 }
+    
 
 </script>
 

@@ -27,7 +27,13 @@ public function home()
             'user.currentProfilePhoto',
             'images',
             'loves.user.currentProfilePhoto',
-            'views'
+            'views',
+            'comments.user.currentProfilePhoto', // ✅
+            'comments.loves',                    // ✅
+            'comments.images',                  // ✅
+            'comments.replies.user.currentProfilePhoto', // ✅
+            'comments.replies.images',                 // ✅
+            'comments.replies.loves'                  // ✅
         ])
         ->inRandomOrder()
         ->take(10)
@@ -55,7 +61,7 @@ public function home()
                     'last_name' => $love->user->last_name,
                     'photo' => $love->user->currentProfilePhoto
                         ? asset('storage/' . $love->user->currentProfilePhoto->path)
-                        : asset('images/default-profile.jpg'),
+                        : asset('image/default-user-photo.png'),
                 ],
             ];
         });
@@ -75,7 +81,13 @@ public function loadPosts(Request $request)
             'user.currentProfilePhoto',
             'images',
             'loves.user.currentProfilePhoto',
-            'views'
+            'views',
+            'comments.user.currentProfilePhoto', // ✅
+            'comments.loves',                    // ✅
+            'comments.images',                  // ✅
+            'comments.replies.user.currentProfilePhoto', // ✅
+            'comments.replies.images',                 // ✅
+            'comments.replies.loves'                  // ✅
         ])
         ->withCount('loves')
         ->inRandomOrder()

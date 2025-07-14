@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentImage extends Model
 {
-        use HasFactory;
+    use HasFactory;
+    protected $fillable = ['path'];
+    public function comment() {
+        return $this->belongsTo(Comment::class);
+    }
 
 }

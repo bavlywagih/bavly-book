@@ -62,6 +62,14 @@ public function currentProfilePhoto()
 {
     return $this->hasOne(Image::class)->where('type', 'profile')->where('is_current', true);
 }
+public function commentLoves()
+{
+    return $this->hasMany(CommentLove::class);
+}
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
 
 // public function currentProfilePhoto()
 // {
